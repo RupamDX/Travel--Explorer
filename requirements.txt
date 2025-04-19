@@ -1,0 +1,39 @@
+# Core dependencies
+fastapi
+uvicorn
+streamlit
+pydantic
+python-dotenv
+
+# API and HTTP
+requests
+httpx==0.25.0
+
+# Data processing
+pandas
+numpy
+
+# AI/ML
+openai==1.3.7 
+tiktoken==0.5.2
+sentence-transformers
+google-search-results
+
+# Vector databases
+pinecone
+
+# Snowflake integration
+snowflake-snowpark-python==1.9.0
+snowflake-connector-python==3.4.0
+
+
+# Utilities
+python-multipart
+Jinja2
+markdown
+regex
+pytz
+
+# Development tools
+pytest
+black

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - travel-network
+    volumes:
+      - ./mcp_server.py:/app/mcp_server.py
+
+  # API Server
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - MCP_SERVER_URL=http://mcp-server:8080
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - travel-network
+    volumes:
+      - ./api:/app/api
+      - ./backend:/app/backend
+
+  # Streamlit UI
+  streamlit-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      - API_URL=http://api-server:8000/api
+      - MCP_SERVER_URL=http://mcp-server:8080
+      - STREAMLIT_SERVER_START_TIMEOUT=60
+    depends_on:
+      api-server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - travel-network
+    volumes:
+      - ./app.py:/app/app.py
+
+networks:
+  travel-network:
+    driver: bridge
