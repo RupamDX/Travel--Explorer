@@ -22,7 +22,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific domains
+    allow_origins=["http://34.58.131.194:8501"],  # In production, replace with specific domains
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +41,10 @@ async def root():
         "version": "1.0.0",
         "docs_url": "/docs"
     }
-
+# Alias health endpoint so Docker can see it
+@app.get("/health", tags=["health"])
+async def root_health_check():
+    return {"status": "healthy"}
 # Health check endpoint
 @app.get("/api/health", tags=["health"])
 async def api_health_check():
